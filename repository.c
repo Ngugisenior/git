@@ -3,11 +3,13 @@
 #include "object-store.h"
 #include "config.h"
 #include "object.h"
+#include "lockfile.h"
 #include "submodule-config.h"
 
 /* The main repository */
 static struct repository the_repo;
 struct repository *the_repository;
+struct index_state the_index;
 
 void initialize_the_repository(void)
 {
@@ -256,4 +258,13 @@ int repo_read_index(struct repository *repo)
 		repo->index = xcalloc(1, sizeof(*repo->index));
 
 	return read_index_from(repo->index, repo->index_file, repo->gitdir);
+}
+
+int repo_hold_locked_index(struct repository *repo,
+			   struct lock_file *lf,
+			   int flags)
+{
+	if (!repo->index_file)
+		BUG("the repo hasn't been setup");
+	return hold_lock_file_for_update(lf, repo->index_file, flags);
 }

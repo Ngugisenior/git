@@ -1,3 +1,4 @@
+#define USE_THE_INDEX_COMPATIBILITY_MACROS
 #include "builtin.h"
 #include "config.h"
 #include "parse-options.h"
@@ -437,7 +438,7 @@ static int do_apply_stash(const char *prefix, struct stash_info *info,
 	if (info->has_u && restore_untracked(&info->u_tree))
 		return error(_("could not restore untracked files from stash"));
 
-	init_merge_options(&o);
+	init_merge_options(&o, the_repository);
 
 	o.branch1 = "Updated upstream";
 	o.branch2 = "Stashed changes";
@@ -819,7 +820,8 @@ static int store_stash(int argc, const char **argv, const char *prefix)
 		return -1;
 	}
 
-	if (get_oid_with_context(argv[0], quiet ? GET_OID_QUIETLY : 0, &obj,
+	if (get_oid_with_context(the_repository,
+				 argv[0], quiet ? GET_OID_QUIETLY : 0, &obj,
 				 &dummy)) {
 		if (!quiet)
 			fprintf_ln(stderr, _("Cannot update %s with %s"),
